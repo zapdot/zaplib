@@ -1,21 +1,21 @@
 from siesta import *
 from siesta.auth import APIKeyAuth
 
+from zaplib.configbox import config
+
 class GitHubAPI(object):
 
-	def __init__(self, owner, repository):
-		import ConfigParser
-
-		config = ConfigParser.ConfigParser()
-		config.read('config/tokens.ini')
-
-		token = config.get('github', 'token')
-		auth = APIKeyAuth("token %s" % token, "Authorization")
+	def __init__(self, config_id = None):
+		auth = APIKeyAuth("token %s" % config['api'].github, "Authorization")
 
 		self.api = API('https://api.github.com', auth)
-		self.owner = owner
-		self.repository = repository
 
+		if config_id:
+			self.owner = config[config_id].git.owner
+			self.repo = config[config_id].git.repo
+		else:
+			self.owner = None
+			self.repo = None
 
 	def _api_path(self, *args):
 		result = self.api.repos
@@ -26,14 +26,16 @@ class GitHubAPI(object):
 		return result
 
 	# GET /repos/:owner/:repo/commits
-	def commits(self, branch, since):
+	def commits(self, branch, since, owner=None, repo=None):
+		owner = self.owner if not owner else owner
+		repo = self.repo if not repo else repo
 
 		args = {
 			'sha': branch,
 			'since': since
 		}
 
-		git = self._api_path(self.owner, self.repository)
+		git = self._api_path(owner, repo)
 
 		commits, resp = git.commits().get(**args)
 
@@ -42,17 +44,22 @@ class GitHubAPI(object):
 		return results
 
 	# GET /repos/:owner/:repo/commits/:sha
-	def commit(self, sha):
-		git = self._api_path(self.owner, self.repository, "commits", sha)
+	def commit(self, sha, owner=None, repo=None):
+		owner = self.owner if not owner else owner
+		repo = self.repo if not repo else repo
+
+		git = self._api_path(owner, repo, "commits", sha)
 
 		commit, resp = git.get()
 
 		return commit
 
 	# GET /repos/:owner/:repo/pulls/:number/commits
-	def commits_from_pr(self, request_id):
+	def commits_from_pr(self, request_id, owner=None, repo=None):
+		owner = self.owner if not owner else owner
+		repo = self.repo if not repo else repo
 
-		git = self._api_path(self.owner, self.repository, "pulls", str(request_id))
+		git = self._api_path(owner, repo, "pulls", str(request_id))
 		commits, resp = git.commits().get()
 
 		results = [x.commit for x in commits]

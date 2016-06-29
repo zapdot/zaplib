@@ -1,22 +1,24 @@
 from siesta import *
 from siesta.auth import APIKeyAuth
 
+from zaplib.configbox import config
+
 class CloudBuildAPI(object):
 
-	def __init__(self, orgid):
-		import ConfigParser
-
-		config = ConfigParser.ConfigParser()
-		config.read('config/tokens.ini')
-
-		token = config.get('cloudbuild', 'token')
-		auth = APIKeyAuth("Basic %s" % token, "Authorization")
+	def __init__(self, config_id = None):
+		auth = APIKeyAuth("Basic %s" % config['api'].cloudbuild, "Authorization")
 
 		self.api = API('https://build-api.cloud.unity3d.com/api/v1/', auth)
-		self.orgid = orgid
 
-	def _api_projects(self, pid):
-		return self.api.orgs(self.orgid).projects(pid)
+		if config_id:
+			self.org_id = config[config_id].cloudbuild.org_id
+			self.project_id = config[config_id].cloudbuild.project_id
+		else:
+			self.org_id = None
+			self.project_id = None
+
+	def _api_org_prj(self, oid, pid):
+		return self.api.orgs(oid).projects(pid)
 
 	def _clean_buildtarget(self, bt):
 		target = {k : bt.attrs.get(k, None) for k in ('buildtargetid', 'enabled', 'name', 'platform')}
@@ -41,7 +43,7 @@ class CloudBuildAPI(object):
 	# GET /projects
 	def get_projects(self):
 		
-		projects, resp = self.api.projects().get()
+		projects, resp = self.api.projects.get()
 
 		results = []
 
@@ -54,8 +56,11 @@ class CloudBuildAPI(object):
 
 	# List all build targets for a project
 	# GET /orgs/{orgid}/projects/{projectid}/buildtargets
-	def get_buildtargets(self, project_id):
-		cb = self._api_projects(project_id)
+	def get_buildtargets(self, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+		
+		cb = self._api_org_prj(org_id, project_id)
 
 		args = {
 			'include_last_success': "true"
@@ -74,8 +79,11 @@ class CloudBuildAPI(object):
 
 	# Get a build target
 	# GET /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}
-	def get_buildtarget(self, project_id, buildtarget_id):
-		cb = self._api_projects(project_id)
+	def get_buildtarget(self, buildtarget_id, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
 
 		target, resp = cb.buildtargets(buildtarget_id).get()
 
@@ -85,8 +93,11 @@ class CloudBuildAPI(object):
 
 	# Get a list of builds for a buildtarget
 	# GET /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}/builds
-	def get_builds(self, project_id, buildtarget_id, per_page=25, page=1):
-		cb = self._api_projects(project_id)
+	def get_builds(self, buildtarget_id, org_id = None, project_id = None, per_page=25, page=1):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
 
 		args = {
 			'per_page': per_page,
@@ -103,8 +114,11 @@ class CloudBuildAPI(object):
 
 	# Build Status
 	# GET /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}/builds/{number}
-	def get_buildstatus(self, project_id, buildtarget_id, build_num):
-		cb = self._api_projects(project_id)
+	def get_buildstatus(self, buildtarget_id, build_num, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
 
 		build, resp = cb.buildtargets(buildtarget_id).builds(build_num).get()
 
@@ -113,8 +127,11 @@ class CloudBuildAPI(object):
 
 	# Create new build
 	# POST /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}/builds
-	def create_build(self, project_id, buildtarget_id='_all'):
-		cb = self._api_projects(project_id)
+	def create_build(self, buildtarget_id='_all', org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
 
 		args = {
 			'clean': True,
@@ -129,8 +146,11 @@ class CloudBuildAPI(object):
 	# Cancel all builds
 	# DELETE /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}/builds
 	# Cancel all builds in progress for this build target (or all targets, if '_all' is specified as the buildtargetid). Canceling an already finished build will do nothing and respond successfully.
-	def cancel_builds(self, project_id, buildtarget_id='_all'):
-		cb = self._api_projects(project_id)
+	def cancel_builds(self, buildtarget_id='_all', org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
 
 		build, resp = cb.buildtargets(buildtarget_id).builds.delete()
 
@@ -139,8 +159,11 @@ class CloudBuildAPI(object):
 
 	# Cancel build
 	# DELETE /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}/builds/{number}
-	def cancel_build(self, project_id, buildtarget_id, build_num):
-		cb = self._api_projects(project_id)
+	def cancel_build(self, buildtarget_id, build_num, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
 
 		build, resp = cb.buildtargets(buildtarget_id).builds(build_num).delete()
 

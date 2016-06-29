@@ -71,3 +71,5 @@ class ConfigPath(object):
 
 	def __call__(self):
 		return self._data
+
+config = ConfigBox()
