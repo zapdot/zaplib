@@ -1,15 +1,13 @@
 import os, json
 
-__ENV_VAR__ = "CONFIGBOX_LOCAL_PATH"
+def setup():
+	__ENV_VAR__ = "CONFIGBOX_PATH"
 
-CONFIGBOX_LOCAL_PATH = None
+	global PATH
+	PATH = os.environ.get(__ENV_VAR__, None)
 
-for k,v in os.environ.iteritems():
-	if k == __ENV_VAR__:
-		CONFIGBOX_LOCAL_PATH = v
-
-if not CONFIGBOX_LOCAL_PATH:
-	print "error: {} not set in environment.".format(__ENV_VAR__)
+	if not PATH:
+		print "> error: {} not set in environment.".format(__ENV_VAR__)
 
 def _from_json(file):
 	result = {}
@@ -25,12 +23,14 @@ class ConfigBox(object):
 		self._configs = {}
 
 		# load configs
-		cfg_files = [f for f in os.listdir(CONFIGBOX_LOCAL_PATH) if f[-5:] == ".json"]
+		if PATH:
+			cfg_dir = os.path.join(PATH, "config")
+			cfg_files = [f for f in os.listdir(cfg_dir) if f[-5:] == ".json"]
 
-		for file in cfg_files:
-			name = file[:-5]
-			path = os.path.join(CONFIGBOX_LOCAL_PATH, file)
-			self._configs[name] = ConfigPath(_from_json(path))
+			for file in cfg_files:
+				name = file[:-5]
+				path = os.path.join(PATH, file)
+				self._configs[name] = ConfigPath(_from_json(path))
 
 	def __getitem__(self, key):
 		if key in self._configs:
@@ -72,4 +72,5 @@ class ConfigPath(object):
 	def __call__(self):
 		return self._data
 
+setup()
 config = ConfigBox()
