@@ -2,7 +2,7 @@
 
 This library encompasses much of the magic that we use to automate many of our services and development environment. Since there's a nonzero chance this may help others, we've put it out there!
 
-We'd love to hear any feedback/suggestions/questions.
+We'd love your feedback/questions. 
 
 ## Installation
 
@@ -17,6 +17,8 @@ As this package will be in constant development, it's suggested to install this 
 This package also requires the following libraries:
 
 * Our internal version of [Siesta](https://github.com/zapdot/siesta) to work with RESTful services.
+
+* While not required, you may want to consider our [python-tools](https://github.com/zapdot/python-tools), as they take advantage of this lib and will grow over time.
 
 ## Web Services
 
@@ -40,7 +42,7 @@ The following variables will be used:
 
 ##### Methods
 
-NOTE: `project_id`/`org_id` is autofilled with the ConfigBox vars for the given "proj_id" in the Python Setup. These can be overwritten for every method except `get_projects()`. This is great if you need your script to access multiple projects/orgs at once.
+**NOTE:** `project_id`/`org_id` is autofilled with the ConfigBox vars for the given "proj_id" in the Python Setup. These can be overwritten for every method except `get_projects()`. This is great if you need your script to access multiple projects/orgs at once.
 
 **List all projects accessible by the UCB API Key**
 
@@ -94,7 +96,7 @@ The following variables will be used:
 
 ##### Methods
 
-NOTE: `owner`/`repo` is autofilled with the ConfigBox var for the given "proj_id" in the Python Setup. These can be overwritten for every method. This is great if you need your script to access multiple projects at once.
+**NOTE:** `owner`/`repo` is autofilled with the ConfigBox var for the given "proj_id" in the Python Setup. These can be overwritten for every method. This is great if you need your script to access multiple projects at once.
 
 **Get all commits to a branch since a certain date.**
 
@@ -127,7 +129,7 @@ The following variables will be used:
 
 ##### Methods
 
-NOTE: `project_id` is autofilled with the ConfigBox var for the given "proj_id" in the Python Setup. These can be overwritten for every method. This is great if you need your script to access multiple projects at once.
+**NOTE:** `project_id` is autofilled with the ConfigBox var for the given "proj_id" in the Python Setup. These can be overwritten for every method. This is great if you need your script to access multiple projects at once.
 
 **Get epics for the current project.**
 
@@ -232,6 +234,49 @@ We store the project-based JSONs in a private repository for the company, and sh
 
 ## GameVersion
 
-coming soon.
+##### Python Import
+
+    from zaplib.version import GameVersion 
+
+##### Class Methods
+
+    GameVersion.from_string(ver_str)
+
+`ver_str` can be a string in the format of `X.Y.Z`
+
+    GameVersion.from_path(path)
+
+`path` should point to a JSON file formatted like so:
+
+```
+{
+    "majorVersion": 0,
+    "patchVersion": 0,
+    "minorVersion": 0
+}
+```
+
+##### Instance Methods
+
+**NOTE:** You can also set the values individually, with the instance fields `major`, `minor` and `patch`, respectively.
+
+Bump the major version, reset minor/patch to 0.
+
+    ver.bumpMajor()
+
+Bump the minor version, reset patch to 0.
+
+    ver.bumpMinor()
+
+Bump the patch version.
+
+    ver.bumpPatch()
+
+Save the file out to a given `path`.
+
+    ver.saveToFile(path)
+
+
+
 
 
