@@ -16,7 +16,7 @@ class GameVersion(object):
 
 	@classmethod 
 	def from_path(cls, path):
-		if os.path.exists(path):
+		if path and os.path.exists(path):
 			with open(path) as version_json:
 				result = json.load(version_json)
 
