@@ -44,35 +44,35 @@ The following variables will be used:
 
 **NOTE:** `project_id`/`org_id` is autofilled with the ConfigBox vars for the given "proj_id" in the Python Setup. These can be overwritten for every method except `get_projects()`. This is great if you need your script to access multiple projects/orgs at once.
 
-**List all projects accessible by the UCB API Key**
+**List all projects accessible by the UCB API Key.**
 
     cloudbuild.get_projects()
 
-**List all build targets for a project**
+**List all build targets for a project.**
 
     cloudbuild.get_buildtargets()
 
-**Get a build target**
+**Get a build target.**
 
     cloudbuild.get_buildtarget(buildtarget_id)
 
-**Get a list of builds for a buildtarget**
+**Get a list of builds for a buildtarget.**
 
     cloudbuild.get_builds(buildtarget_id, per_page=25, page=1)
 
-**Build Status**
+**Get Build Status for a buildtarget.**
 
     cloudbuild.get_buildstatus(buildtarget_id, build_num)
 
-**Create new build**
+**Create new build.**
 
     cloudbuild.create_build(buildtarget_id='_all')
 
-**Cancel all builds**
+**Cancel all builds.**
 
     cloudbuild.cancel_builds(buildtarget_id='_all')
 
-**Cancel build**
+**Cancel build.**
 
     cloudbuild.cancel_build(buildtarget_id, build_num)
 
@@ -106,7 +106,7 @@ The following variables will be used:
 
     github.commit(sha)
 
-**Get all commits from a given Pull Request**
+**Get all commits from a given Pull Request.**
 
     github.commits_from_pr(request_id)
 
@@ -139,7 +139,7 @@ The following variables will be used:
 
     tracker.search(query)
 
-**Create a story with a given name and set of labels**
+**Create a story with a given name and set of labels.**
 
     tracker.create_story(name, labels)
 
@@ -155,7 +155,7 @@ The following variables will be used:
 
     tracker.set_story_state(story_id, state)
 
-**Return the URL for a given story id**
+**Return the URL for a given story id.**
 
     tracker.link_story(story_id)
 
@@ -260,19 +260,19 @@ We store the project-based JSONs in a private repository for the company, and sh
 
 **NOTE:** You can also set the values individually, with the instance fields `major`, `minor` and `patch`, respectively.
 
-Bump the major version, reset minor/patch to 0.
+**Bump the major version, reset minor/patch to 0.**
 
     ver.bumpMajor()
 
-Bump the minor version, reset patch to 0.
+**Bump the minor version, reset patch to 0.**
 
     ver.bumpMinor()
 
-Bump the patch version.
+**Bump the patch version.**
 
     ver.bumpPatch()
 
-Save the file out to a given `path`.
+**Save the file out to a given `path`.**
 
     ver.saveToFile(path)
 
