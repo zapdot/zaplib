@@ -1,4 +1,4 @@
-import json
+import os, json
 from functools import total_ordering
 
 @total_ordering
@@ -9,13 +9,21 @@ class GameVersion(object):
 		self.patch = int(patch)
 
 	@classmethod
-	def from_data(cls, data):
-		if isinstance(data, dict):
-			return cls(data['majorVersion'], data['minorVersion'], data['patchVersion'])
-		elif isinstance(data, basestring):
-			ver = data.split('.')
-			ver = ver + [0] * (3 - len(ver))
-			return cls(ver[0], ver[1], ver[2])
+	def from_string(cls, ver_str):
+		ver = ver_str.split('.')
+		ver = ver + [0] * (3 - len(ver))
+		return cls(ver[0], ver[1], ver[2])
+
+	@classmethod 
+	def from_path(cls, path):
+		if os.path.exists(path):
+			with open(path) as version_json:
+				result = json.load(version_json)
+
+				return cls(result['majorVersion'], result['minorVersion'], result['patchVersion'])
+
+		return cls()
+
 
 	def __str__(self):
 		return "{}.{}.{}".format(self.major, self.minor, self.patch)
