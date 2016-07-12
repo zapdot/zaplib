@@ -11,8 +11,8 @@ class GitHubAPI(object):
 		self.api = API('https://api.github.com', auth)
 
 		if config_id:
-			self.owner = config[config_id].git.owner
-			self.repo = config[config_id].git.repo
+			self.owner = config[config_id].github.owner
+			self.repo = config[config_id].github.repo
 		else:
 			self.owner = None
 			self.repo = None

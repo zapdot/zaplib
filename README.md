@@ -91,8 +91,8 @@ The following variables will be used:
 The following variables will be used:
 
 * `config['api'].github` (GitHub User API Key)
-* `config['proj_id'].git.owner` (GitHub Owner ID)
-* `config['proj_id'].git.repo` (GitHub Repository ID)
+* `config['proj_id'].github.owner` (GitHub Owner ID)
+* `config['proj_id'].github.repo` (GitHub Repository ID)
 
 ##### Methods
 
