@@ -36,7 +36,7 @@ class PivotalAPI(object):
 			'query': query
 		}
 
-		results, resp = self.project.search.get(**args)
+		results, resp = pivotal.search.get(**args)
 
 		return results
 
