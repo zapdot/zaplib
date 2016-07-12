@@ -29,7 +29,7 @@ class ConfigBox(object):
 
 			for file in cfg_files:
 				name = file[:-5]
-				path = os.path.join(PATH, file)
+				path = os.path.join(cfg_dir, file)
 				self._configs[name] = ConfigPath(_from_json(path))
 
 	def __getitem__(self, key):
