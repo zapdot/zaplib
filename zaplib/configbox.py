@@ -38,6 +38,7 @@ class ConfigBox(object):
 		else:
 			return None
 
+	# returns the name of the config with first path/value match
 	def find(self, path, value):
 		for name, config in self._configs.iteritems():
 			try:
@@ -46,10 +47,47 @@ class ConfigBox(object):
 				continue
 			else:
 				if data == value:
-					return config
+					return name
 
 		return None
 
+	# returns the names of the config with first path/value match
+	def find_all(self, path, value):
+		results = []
+
+		for name, config in self._configs.iteritems():
+			try:
+				data = reduce(lambda d,k: d[k], path, config())
+			except:
+				continue
+			else:
+				if data == value:
+					results.append(name)
+
+		return results
+
+	# finds the exclusive match among the configs, errors if multiples returned
+	def find_ex(self, *path_value_pairs):
+		sets = []
+
+		for pair in path_value_pairs:
+			path, value = pair
+
+			configs = self.find_all(path, value)
+
+			if configs:
+				sets.append(set(configs))
+
+		result = list(reduce(lambda s1,s2: s1&s2, sets))
+
+		if result and len(result) == 1:
+			return result[0]
+		else:
+			print "> error: multiple values returned for:"
+			for pair in path_value_pairs:
+				path, value = pair
+				print "  {} = {}".format(".".join(path), value)
+			return None
 
 class ConfigPath(object):
 	def __init__(self, data):
