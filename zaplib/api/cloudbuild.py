@@ -127,7 +127,7 @@ class CloudBuildAPI(object):
 
 	# Create new build
 	# POST /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}/builds
-	def create_build(self, buildtarget_id='_all', org_id = None, project_id = None):
+	def create_build(self, buildtarget_id='_all', org_id = None, project_id = None, commit_hash=None):
 		org_id = self.org_id if not org_id else org_id
 		project_id = self.project_id if not project_id else project_id
 
@@ -136,7 +136,7 @@ class CloudBuildAPI(object):
 		args = {
 			'clean': True,
 			'delay': 0,
-			'commit': ''
+			'commit': commit_hash if commit_hash else ''
 		}
 
 		builds, resp = cb.buildtargets(buildtarget_id).builds.post_json(**args)
