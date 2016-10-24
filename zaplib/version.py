@@ -63,4 +63,4 @@ class GameVersion(object):
 		}
 
 		with open(path, 'w+') as version_json:
-			json.dump(data, version_json, indent=4*' ')
+			json.dump(data, version_json, indent=4, sort_keys=True)
