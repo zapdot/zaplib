@@ -96,9 +96,9 @@ class YouTubeAPI(object):
             for item in result['items']:
                 video = {}
                 video['video_id'] = item['snippet']['resourceId']['videoId']
-                video['title'] = item['snippet']['title']
+                video['title'] = item['snippet'].get('title', '')
                 video['description'] = item['snippet'].get('description','')
-                video['publish_date'] = item['snippet']['publishedAt']
+                video['publish_date'] = item['snippet'].get('publishedAt', '')
 
                 videos.append(video)
 
@@ -167,18 +167,18 @@ class YouTubeAPI(object):
         if "snippet" in item:
             video['title'] = item['snippet']['title']
             video['description'] = item['snippet'].get('description','')
-            video['publish_date'] = item['snippet']['publishedAt']
-            video['tags'] = ",".join(item['snippet']['tags'])
-            video['category_id'] = item['snippet']['categoryId']
+            video['publish_date'] = item['snippet'].get('publishedAt', '')
+            video['tags'] = ",".join(item['snippet'].get('tags',[]))
+            video['category_id'] = item['snippet'].get('categoryId', -1)
 
         if "contentDetails" in item:
-            video['duration'] = item['contentDetails']['duration']
+            video['duration'] = item['contentDetails'].get('duration', '')
 
         if "statistics" in item:
-            video['view_count'] = item['statistics']['viewCount']
-            video['like_count'] = item['statistics']['likeCount']
-            video['dislike_count'] = item['statistics']['dislikeCount']
-            video['comment_count'] = item['statistics']['commentCount']
+            video['view_count'] = item['statistics'].get('viewCount', 0)
+            video['like_count'] = item['statistics'].get('likeCount', 0)
+            video['dislike_count'] = item['statistics'].get('dislikeCount', 0)
+            video['comment_count'] = item['statistics'].get('commentCount', 0)
 
         return video
 
