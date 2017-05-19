@@ -35,6 +35,7 @@ class CloudBuildAPI(object):
 		result['branch'] = b.get('scmBranch', '')
 		result['sha'] = b.get('lastBuiltRevision', '')
 		result['platform'] = b['platform']
+		result['finish_date'] = b.get('finished', '')
 		result['totalTimeInSeconds'] = b.get('totalTimeInSeconds', 0)
 
 		return result
@@ -168,4 +169,24 @@ class CloudBuildAPI(object):
 		build, resp = cb.buildtargets(buildtarget_id).builds(build_num).delete()
 
 		return resp.status == 204
+
+	# Get build share link, or create one.
+	# GET /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}/builds/{number}/share
+	def get_or_create_share(self, buildtarget_id, build_num, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
+
+		share, resp = cb.buildtargets(buildtarget_id).builds(build_num).share.get()
+
+		# if no share link is found, we need to create one.
+		if resp.status == 404:
+			share, resp = cb.buildtargets(buildtarget_id).builds(build_num).share.post()
+
+			if resp.status == 404: 
+				return None
+
+		return "https://developer.cloud.unity3d.com/share/{}/".format(share.attrs['shareid'])
+
 

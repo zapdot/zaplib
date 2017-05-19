@@ -66,6 +66,9 @@ class GitHubAPI(object):
 
 		return results
 
+	def link_sha(self, sha):
+		return "https://github.com/{}/{}/commits/{}".format(self.owner, self.repo, sha)
+
 
 
 
