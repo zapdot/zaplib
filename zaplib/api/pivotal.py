@@ -59,6 +59,15 @@ class PivotalAPI(object):
 
 		pivotal.stories(story_id).put(**args)
 
+	def get_story(self, story_id, project_id = None):
+		project_id = self.project_id if not project_id else project_id
+
+		pivotal = self._api_proj(project_id)
+
+		results, resp = pivotal.stories(story_id).get()
+
+		return results.attrs
+
 	def set_story_estimate(self, story_id, estimate, project_id = None):
 		project_id = self.project_id if not project_id else project_id
 
@@ -81,5 +90,22 @@ class PivotalAPI(object):
 		project_id = self.project_id if not project_id else project_id
 
 		return "https://www.pivotaltracker.com/n/projects/{}/stories/{}".format(project_id, story_id)
+
+	def get_person(self, person_id, project_id = None):
+		project_id = self.project_id if not project_id else project_id
+
+		args = {
+			'project_id': project_id
+		}
+
+		results, resp = self.api.my.people.get(**args)
+
+		people = [p.attrs for p in results]
+
+		for person in people:
+			if person['id'] == person_id:
+				return person
+
+		return None
 
 
