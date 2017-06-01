@@ -100,7 +100,7 @@ class PivotalAPI(object):
 
 		results, resp = self.api.my.people.get(**args)
 
-		people = [p.attrs for p in results]
+		people = [p.attrs['person'] for p in results]
 
 		for person in people:
 			if person['id'] == person_id:
