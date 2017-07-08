@@ -40,17 +40,19 @@ class PivotalAPI(object):
 
 		return results
 
-	def create_story(self, name, labels, project_id = None):
+	def create_story(self, name, description, labels, story_type, project_id = None):
 		project_id = self.project_id if not project_id else project_id
 
 		pivotal = self._api_proj(project_id)
 
 		args = {
-			'name' : name,
-			'labels[]' : labels
+			'name': name,
+			'description': description,
+			'story_type': story_type,
+			'labels[]': labels
 		}
 
-		pivotal.stories().post(**args)
+		pivotal.stories().post(urlencode_args={'doseq': True}, **args)
 
 	def update_story(self, story_id, args, project_id = None):
 		project_id = self.project_id if not project_id else project_id
