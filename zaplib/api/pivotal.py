@@ -52,7 +52,7 @@ class PivotalAPI(object):
 			'labels[]': labels
 		}
 
-		pivotal.stories().post(urlencode_args={'doseq': True}, **args)
+		pivotal.stories().post(**args)
 
 	def update_story(self, story_id, args, project_id = None):
 		project_id = self.project_id if not project_id else project_id
