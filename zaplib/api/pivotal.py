@@ -25,7 +25,7 @@ class PivotalAPI(object):
 
 		results, resp = pivotal.epics().get()
 
-		return results
+		return [epic.attrs for epic in results]
 
 	def search(self, query, project_id = None):
 		project_id = self.project_id if not project_id else project_id
