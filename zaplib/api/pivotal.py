@@ -91,6 +91,17 @@ class PivotalAPI(object):
 
 		return "https://www.pivotaltracker.com/n/projects/{}/stories/{}".format(project_id, story_id)
 
+	def create_comment(self, story_id, text, project_id = None):
+		project_id = self.project_id if not project_id else project_id
+
+		pivotal = self._api_proj(project_id)
+
+		args = {
+			'text': text
+		}
+
+		pivotal.stories(story_id).comments().post(**args)
+
 	def get_person(self, person_id, project_id = None):
 		project_id = self.project_id if not project_id else project_id
 
