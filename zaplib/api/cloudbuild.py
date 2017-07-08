@@ -57,7 +57,7 @@ class CloudBuildAPI(object):
 
 	# List all build targets for a project
 	# GET /orgs/{orgid}/projects/{projectid}/buildtargets
-	def get_buildtargets(self, org_id = None, project_id = None):
+	def get_buildtargets(self, org_id = None, project_id = None, filter = None):
 		org_id = self.org_id if not org_id else org_id
 		project_id = self.project_id if not project_id else project_id
 		
@@ -74,7 +74,8 @@ class CloudBuildAPI(object):
 		for t in targets:
 			target = self._clean_buildtarget(t)
 
-			results.append(target)
+			if not filter or filter in target['name']:
+				results.append(target)
 
 		return results
 
