@@ -74,7 +74,7 @@ class CloudBuildAPI(object):
 		for t in targets:
 			target = self._clean_buildtarget(t)
 
-			if not filter or filter in target['name']:
+			if not filter or filter.lower() in target['buildtargetid'].lower():
 				results.append(target)
 
 		return results
