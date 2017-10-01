@@ -124,7 +124,10 @@ class CloudBuildAPI(object):
 
 		build, resp = cb.buildtargets(buildtarget_id).builds(build_num).get()
 
-		return self._clean_build(build.attrs)
+		if resp['status'] == 404:
+			return None
+		else:
+			return self._clean_build(build.attrs)
 
 
 	# Create new build
