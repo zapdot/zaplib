@@ -3,6 +3,8 @@ from siesta.auth import APIKeyAuth
 
 from zaplib.configbox import config
 
+import time
+
 class CloudBuildAPI(object):
 
 	def __init__(self, config_id = None):
@@ -21,12 +23,12 @@ class CloudBuildAPI(object):
 		return self.api.orgs(oid).projects(pid)
 
 	def _clean_buildtarget(self, bt):
-		target = {k : bt.attrs.get(k, None) for k in ('buildtargetid', 'enabled', 'name', 'platform')}
+		target = bt.attrs
 
 		if 'builds' in bt.attrs:
-			target['build'] = self._clean_build(bt.attrs['builds'][0])
+			target['last_build'] = self._clean_build(bt.attrs['builds'][0])
 
-		return target 
+		return target
 
 	def _clean_build(self, b):
 		result = {}
@@ -57,7 +59,7 @@ class CloudBuildAPI(object):
 
 	# List all build targets for a project
 	# GET /orgs/{orgid}/projects/{projectid}/buildtargets
-	def get_buildtargets(self, org_id = None, project_id = None, filter = None):
+	def get_buildtargets(self, org_id = None, project_id = None, filter = None, include = None):
 		org_id = self.org_id if not org_id else org_id
 		project_id = self.project_id if not project_id else project_id
 		
@@ -66,6 +68,9 @@ class CloudBuildAPI(object):
 		args = {
 			'include_last_success': "true"
 		}
+
+		if include:
+			args['include'] = ",".join(include)
 
 		targets, resp = cb.buildtargets().get(**args)
 
@@ -91,7 +96,50 @@ class CloudBuildAPI(object):
 
 		result = self._clean_buildtarget(target)
 
-		return target
+		return result
+
+	# Creates a build target with the given settings and credentials.
+	# POST /orgs/{orgid}/projects/{projectid}/buildtargets
+	def create_buildtarget(self, name, platform, enabled, settings, credentials, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
+
+		args = {
+			'name': name,
+			'platform': platform,
+			'enabled': enabled,
+			'settings': settings,
+			'credentials': credentials
+		}
+
+		target, resp = cb.buildtargets().post_json(**args)
+
+		result = self._clean_buildtarget(target)
+
+		return result if resp.status == 201 else None
+
+
+	# Creates a temporary copy of a buildtarget and points it to a different branch.
+	def dupe_buildtarget_for_branch(self, buildtarget_id, branch, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		# get original buildtarget
+		target = self.get_buildtarget(buildtarget_id, org_id, project_id)
+
+		name = "Temp - {} - {}".format(branch.replace('/', '_'), int(time.time()))
+		platform = target['platform']
+		enabled = target['enabled']
+		settings = target['settings']
+
+		# clean up credentials
+		credentials = target['credentials']
+		credentials['signing'] = { k : credentials['signing'].get(k, None) for k in ['credentialid'] }
+
+		# create duplicate target
+		return self.create_buildtarget(name, platform, enabled, settings, credentials)
 
 	# Get a list of builds for a buildtarget
 	# GET /orgs/{orgid}/projects/{projectid}/buildtargets/{buildtargetid}/builds
