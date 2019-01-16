@@ -133,6 +133,7 @@ class CloudBuildAPI(object):
 		platform = target['platform']
 		enabled = target['enabled']
 		settings = target['settings']
+		settings['scm']['branch'] = branch
 
 		# clean up credentials
 		credentials = target['credentials']
