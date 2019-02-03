@@ -6,7 +6,13 @@ from zaplib.configbox import config
 class GitHubAPI(object):
 
 	def __init__(self, config_id = None):
-		auth = APIKeyAuth("token %s" % config['api'].github, "Authorization")
+
+		token = config['api'].github 
+
+		if config[config_id].github.token:
+			token = config[config_id].github.token
+
+		auth = APIKeyAuth("token %s" % token, "Authorization")
 
 		self.api = API('https://api.github.com', auth)
 

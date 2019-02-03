@@ -8,7 +8,13 @@ import time
 class CloudBuildAPI(object):
 
 	def __init__(self, config_id = None):
-		auth = APIKeyAuth("Basic %s" % config['api'].cloudbuild, "Authorization")
+
+		token = config['api'].cloudbuild 
+
+		if config[config_id].cloudbuild.token:
+			token = config[config_id].cloudbuild.token
+
+		auth = APIKeyAuth("Basic %s" % token, "Authorization")
 
 		self.api = API('https://build-api.cloud.unity3d.com/api/v1/', auth)
 
