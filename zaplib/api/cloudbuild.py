@@ -3,6 +3,7 @@ from siesta.auth import APIKeyAuth
 
 from zaplib.configbox import config
 
+from datetime import datetime, time
 import time
 
 class CloudBuildAPI(object):
@@ -45,6 +46,23 @@ class CloudBuildAPI(object):
 		result['platform'] = b['platform']
 		result['finish_date'] = b.get('finished', '')
 		result['totalTimeInSeconds'] = b.get('totalTimeInSeconds', 0)
+
+		return result
+
+	def _clean_credential(self, cred):
+		date_format = "%Y-%m-%dT%H:%M:%S.%fZ"
+
+		cert_expire = datetime.strptime(cred.attrs['certificate']['expiration'], date_format)
+		profile_expire = datetime.strptime(cred.attrs['provisioningProfile']['expiration'], date_format)
+		today = datetime.now()
+
+		result = {}
+		result['certificate'] = cred.attrs['certificate']
+		result['profile'] = cred.attrs['provisioningProfile']
+		result['id'] = cred.attrs['credentialid']
+		result['label'] = cred.attrs['label']
+		result['platform'] = cred.attrs['platform']
+		result['expired'] = cert_expire < today or profile_expire < today
 
 		return result
 
@@ -247,5 +265,46 @@ class CloudBuildAPI(object):
 				return None
 
 		return "https://developer.cloud.unity3d.com/share/{}/".format(share.attrs['shareid'])
+
+	# Get all iOS Credentials for a given project.
+	# GET /orgs/{orgid}/projects/{projectid}/credentials/signing/ios
+	def get_ios_credentials(self, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
+
+		credentials, resp = cb.credentials.signing.ios.get()
+
+		result = [self._clean_credential(cred) for cred in credentials]
+
+		return result
+
+	# Get iOS Credential for a given project and ID
+	# GET /orgs/{orgid}/projects/{projectid}/credentials/signing/ios
+	def get_ios_credential(self, credential_id, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
+
+		credential, resp = cb.credentials.signing.ios(credential_id).get()
+
+		result = self._clean_credential(credential)
+
+		return result
+
+
+	# Delete iOS Credential for a given project and ID
+	# DELETE /orgs/{orgid}/projects/{projectid}/credentials/signing/ios/{credentialid} 
+	def delete_ios_credential(self, credential_id, org_id = None, project_id = None):
+		org_id = self.org_id if not org_id else org_id
+		project_id = self.project_id if not project_id else project_id
+
+		cb = self._api_org_prj(org_id, project_id)
+
+		credential, resp = cb.credentials.signing.ios(credential_id).delete()
+
+		return resp.status == 204
 
 
