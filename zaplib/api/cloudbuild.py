@@ -134,9 +134,11 @@ class CloudBuildAPI(object):
 			'name': name,
 			'platform': platform,
 			'enabled': enabled,
-			'settings': settings,
-			'credentials': credentials
+			'settings': settings
 		}
+
+		if credentials:
+			args['credentials'] = credentials
 
 		target, resp = cb.buildtargets().post_json(**args)
 
@@ -162,6 +164,9 @@ class CloudBuildAPI(object):
 		# clean up credentials
 		credentials = target['credentials']
 		credentials['signing'] = { k : credentials['signing'].get(k, None) for k in ['credentialid'] }
+
+		if not credentials['signing']['credentialid']:
+			credentials = None
 
 		# create duplicate target
 		return self.create_buildtarget(name, platform, enabled, settings, credentials)
